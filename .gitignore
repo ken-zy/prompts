@@ -6,3 +6,6 @@
 
 # Temporary files
 tmp/
+
+# Large data files
+40_Reference/
