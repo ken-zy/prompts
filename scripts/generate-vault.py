@@ -14,7 +14,6 @@ Usage:
 import argparse
 import json
 import os
-import re
 import shutil
 import sys
 from collections import Counter, defaultdict
@@ -190,7 +189,11 @@ def render_prompt_entry(idx: int, prompt: dict, search_links: list[str], pipelin
                     lines.append(f"**Video**: [Watch]({watch_url})")
                 if thumb_url:
                     lines.append(f"![Thumbnail]({thumb_url})")
-        if videos:
+        has_video_content = any(
+            isinstance(v, dict) and (v.get("watchUrl") or v.get("sourceUrl") or v.get("thumbnailUrl") or v.get("thumbnail"))
+            for v in videos
+        )
+        if has_video_content:
             lines.append("")
 
     # Prompt content
@@ -293,7 +296,10 @@ def run_pipeline(pipeline: str):
     entries = []
     missing_ids = 0
     for record in tagged:
-        pid = record["id"]
+        pid = record.get("id")
+        if pid is None:
+            missing_ids += 1
+            continue
         prompt = raw_by_id.get(pid)
         if prompt is None:
             missing_ids += 1
@@ -316,6 +322,10 @@ def run_pipeline(pipeline: str):
     unanchored = [e for e in entries if not e["anchor"]]
     anchored.sort(key=lambda e: e["anchor"])
     sorted_entries = anchored + unanchored
+
+    if not sorted_entries:
+        print(f"[{pipeline}] Error: no prompts matched. Check that raw and normalized files are aligned.")
+        sys.exit(1)
 
     anchored_count = len(anchored)
     print(f"[{pipeline}] Anchored: {anchored_count} ({anchored_count/len(sorted_entries)*100:.1f}%)")
