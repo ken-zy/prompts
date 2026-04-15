@@ -179,7 +179,8 @@
   },
   "active": "7e6e26161d04e92e",
   "lastOpenFiles": [
-    "prompts_video/00-Index.md",
+    "scripts/normalize-links.py",
+    "scripts/generate-vault.py",
     "prompts_video/chunk-009.md",
     "prompts_video/chunk-008.md",
     "prompts_video/chunk-007.md",
@@ -189,8 +190,6 @@
     "prompts_video/chunk-003.md",
     "prompts_video/chunk-002.md",
     "prompts_video/chunk-001.md",
-    "prompts_video",
-    "prompts_imgae/00-Index.md",
     "prompts_imgae/chunk-063.md",
     "prompts_imgae/chunk-062.md",
     "prompts_imgae/chunk-061.md",
@@ -206,14 +205,15 @@
     "prompts_imgae/chunk-051.md",
     "prompts_imgae/chunk-050.md",
     "prompts_imgae/chunk-049.md",
-    "prompts_imgae",
-    "scripts/generate-vault.py",
-    "tmp/normalized_video.json",
-    "tmp/normalized_image.json",
-    "tmp/merge_map_image.json",
-    "tmp/merge_map_video.json",
-    "tmp/link_vocab_video.json",
-    "tmp/link_vocab_image.json",
-    "scripts/normalize-links.py"
+    "prompts_imgae/chunk-048.md",
+    "40_Reference/Articles/20260415",
+    "prompts_video/萌宠与可爱",
+    "prompts_video/舞蹈与音乐",
+    "prompts_video/自然与风景",
+    "prompts_video/科幻与奇幻",
+    "prompts_video/电影感与叙事",
+    "prompts_video/特效与实验",
+    "prompts_video/时尚与生活",
+    "prompts_video/恐怖与悬疑"
   ]
 }
