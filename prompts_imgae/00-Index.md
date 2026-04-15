@@ -1,23 +1,78 @@
 # Nano Banana Pro Prompts
 
-Total: 12465 prompts, 15 topic pages
+Total: 12465 prompts, 63 chunk files
 
 ## Index
 
-| Topic | Count | Related Links |
-|-------|-------|---------------|
-| [[Miscellaneous]] | 12340 | [[Identity Preservation]], [[Shallow Depth Of Field]], [[Celebrity Portrait]], [[Lifestyle Photography]], [[Cinematic Lighting]] |
-| [[Mirror Selfie Portrait]] | 15 | [[Duo Mirror Selfie]], [[Celebrity Likeness Portrait]], [[Elevator Setting]], [[Natural Light]], [[Bathroom Setting]] |
-| [[Yonkoma Comic]] | 15 | [[Four Panel Manga]], [[Reiwa Roman Comedy]], [[Japanese Comedy Manga]], [[Japanese Transit Humor]], [[Japanese Humor]] |
-| [[Old Photo Restoration]] | 13 | [[Photo Enhancement]], [[DSLR Quality Upscaling]], [[Face Preservation]], [[DSLR Quality Enhancement]], [[Photo Upscaling]] |
-| [[Four Panel Manga Comic]] | 13 | [[Japanese Comics]], [[Visual Storytelling]], [[Wordplay Pun]], [[Satirical Commentary]], [[Social Media Dark Side Theme]] |
-| [[Gym Mirror Selfie]] | 10 | [[Celebrity Likeness Portrait]], [[Identity Reference Portrait]], [[Athletic Wear Fashion]], [[Fluorescent Lighting]], [[Hyperrealistic Photography]] |
-| [[Celebrity Likeness Portrait]] | 9 | [[Sadie Sink Inspired]], [[Sabrina Carpenter]], [[Retro Kitchen Scene]], [[1970s Aesthetic]], [[White Jumpsuit]] |
-| [[Photo Restoration]] | 8 | [[Old Photo Enhancement]], [[Face Preservation]], [[Historical Photo Restoration]], [[Old Photo Repair]], [[Image-To-Image]] |
-| [[Four Panel Manga]] | 8 | [[Yonkoma Comic]], [[Comedy Scene]], [[Character Illustration]], [[Japanese Comedy]], [[Fantasy Comic]] |
-| [[Bedroom Mirror Selfie]] | 7 | [[Red Hair Female Portrait]], [[White Bed Setting]], [[Natural Sunlight Blinds]], [[Lifestyle Photography]], [[Minimalist Bedroom Aesthetic]] |
-| [[Character Reference Sheet]] | 6 | [[Character Design]], [[Sci-Fi Tactical Gear]], [[8-Panel Grid]], [[Female Warrior Character]], [[Hyperrealistic Portrait]] |
-| [[Overhead Playful Bikini Portrait]] | 6 | [[Bird's Eye View Portrait]], [[Winking Expression]], [[Structured JSON Prompt]], [[Freckle Detail]], [[Blonde Waves]] |
-| [[Old Photo Restoration Portrait]] | 5 | [[Photo Restoration]], [[Facial Feature Preservation]], [[DSLR Quality Enhancement]], [[Photo Enhancement]], [[Vintage To Modern]] |
-| [[Post-Yoga Portrait]] | 5 | [[Upward Dog Pose]], [[8K Resolution]], [[Sweat Texture]], [[Magazine Editorial]], [[Yoga Studio]] |
-| [[Gym Mirror Selfie Exaggerated Proportions]] | 5 | [[Hourglass Figure]], [[Structured JSON Prompt]], [[Paris Night View]], [[Celebrity Likeness]], [[Kneeling Pose]] |
+| Topic | Chunks | Count |
+|-------|--------|-------|
+| [[Identity Preservation]] | 016, 017, 018 | 583 |
+| [[Shallow Depth Of Field]] | 016, 017, 018, 024, 025, 026 | 444 |
+| [[Lifestyle Photography]] | 016, 017, 018, 019, 020, 024, 025, 026 | 266 |
+| [[Celebrity Portrait]] | 003, 004, 016, 017, 020, 024, 025 | 263 |
+| [[Cinematic Lighting]] | 003, 004, 005, 006, 016, 017, 018, 019, 020, 024, 025, 026 | 258 |
+| [[Identity Lock]] | 003, 004, 005, 006, 014, 015, 019, 020, 025, 026 | 253 |
+| [[Mirror Selfie]] | 003, 005, 006, 014, 015, 016, 017, 018, 019, 020, 021, 022 | 236 |
+| [[Studio Lighting]] | 003, 004, 015, 016, 017, 018, 019, 020, 025, 026, 028, 029 | 231 |
+| [[Fashion Editorial]] | 003, 004, 005, 006, 009, 010, 014, 015, 016, 017, 018, 020, 026, 028, 029 | 206 |
+| [[Cinematic Portrait]] | 003, 004, 006, 007, 009, 014, 015, 016, 017, 018, 019, 020, 024, 025, 026 | 199 |
+| [[Celebrity Likeness]] | 001, 002, 005, 006, 009, 017, 019, 020, 021, 022, 025, 028 | 186 |
+| [[Structured JSON Prompt]] | 002, 003, 005, 006, 009, 014, 015, 016, 017, 018, 019, 020, 021, 025, 026, 027, 028 | 152 |
+| [[Female Portrait]] | 005, 006, 007, 009, 010, 011, 016, 018, 019, 020, 021, 024, 025, 026, 028 | 142 |
+| [[Dramatic Lighting]] | 002, 003, 006, 007, 008, 009, 010, 011, 015, 016, 017, 018, 026, 027 | 135 |
+| [[Flash Photography]] | 004, 007, 008, 009, 011, 012, 014, 015, 016, 017, 018, 020, 022, 027 | 133 |
+| [[Film Grain]] | 002, 004, 008, 009, 011, 014, 016, 018, 019, 020, 021, 022, 024, 025, 026 | 130 |
+| [[Identity Locking]] | 002, 003, 005, 006, 007, 008, 011, 015, 016, 025, 026, 028 | 126 |
+| [[Photorealistic Rendering]] | 002, 005, 006, 009, 010, 016, 019, 023, 027, 028 | 124 |
+| [[Macro Photography]] | 004, 006, 010, 011, 018, 020, 021, 023, 024, 025, 026, 028 | 122 |
+| [[8K Resolution]] | 001, 002, 004, 005, 006, 008, 009, 011, 016, 018, 019, 020, 021, 022, 023, 024, 025, 026, 028, 029 | 119 |
+| [[Product Photography]] | 005, 006, 008, 018, 021, 023, 024, 026, 028, 029 | 119 |
+| [[Hyperrealistic Photography]] | 001, 002, 003, 004, 005, 006, 008, 009, 010, 011, 013, 014, 015, 016, 018, 020, 021, 024, 025, 026, 027, 028 | 115 |
+| [[Golden Hour Photography]] | 001, 002, 003, 004, 005, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 022, 025, 026, 027 | 106 |
+| [[Studio Portrait]] | 002, 004, 006, 007, 008, 009, 010, 014, 016, 017, 018, 025, 026, 027, 028, 029 | 106 |
+| [[Celebrity Likeness Portrait]] | 002, 003, 005, 011, 013, 016, 021, 024, 025, 029 | 106 |
+| [[Direct Flash Photography]] | 001, 002, 003, 004, 005, 007, 008, 010, 011, 014, 015, 016, 020, 026, 030 | 103 |
+| [[Y2K Aesthetic]] | 002, 003, 004, 007, 008, 009, 010, 011, 012, 013, 014, 015, 017, 018, 020, 021, 022, 028, 029, 030 | 103 |
+| [[Cinematic Photography]] | 003, 004, 006, 008, 009, 010, 011, 012, 013, 014, 015, 016, 018, 019, 020, 024, 026 | 102 |
+| [[High Fashion Editorial]] | 001, 002, 003, 004, 005, 006, 007, 008, 010, 011, 012, 013, 014, 015, 016, 017, 019, 024, 025, 027, 028, 029 | 100 |
+| [[Skin Texture Detail]] | 001, 002, 003, 004, 005, 006, 008, 009, 010, 011, 013, 014, 015, 016, 017, 018, 021, 022, 024, 025, 026, 027, 028 | 99 |
+| [[Commercial Photography]] | 001, 006, 007, 010, 021, 023, 024, 025, 028, 029 | 98 |
+| [[Candid Photography]] | 001, 003, 004, 007, 008, 010, 011, 014, 016, 017, 018, 020, 021, 022, 023, 025, 026, 029, 030 | 97 |
+| [[Natural Daylight]] | 002, 003, 004, 009, 014, 015, 016, 017, 019, 020, 021, 022, 024, 025, 026, 027 | 96 |
+| [[Fashion Photography]] | 004, 005, 006, 007, 008, 010, 011, 013, 017, 018, 020, 021, 022, 023, 024, 025, 026, 028, 029 | 95 |
+| [[Style Transfer]] | 005, 008, 010, 015, 016, 018, 023, 024, 026, 028, 029 | 95 |
+| [[High Contrast Lighting]] | 001, 002, 003, 004, 006, 007, 008, 009, 010, 011, 013, 014, 015, 016, 017, 018, 019, 020, 026, 029 | 92 |
+| [[Golden Hour Lighting]] | 001, 002, 004, 006, 007, 009, 010, 012, 015, 016, 017, 019, 020, 021, 022, 024, 025, 026 | 91 |
+| [[Food Photography]] | 001, 005, 007, 008, 012, 013, 014, 019, 020, 021, 024, 025, 028, 029 | 86 |
+| [[Editorial Photography]] | 002, 004, 005, 006, 008, 009, 010, 013, 014, 016, 017, 018, 022, 024, 025, 026, 028, 029, 030 | 86 |
+| [[Natural Light]] | 001, 002, 003, 004, 006, 008, 010, 011, 013, 014, 015, 016, 018, 019, 020, 022, 023, 025, 026, 027 | 85 |
+| [[Celebrity Lookalike]] | 003, 005, 006, 007, 012, 013, 014, 016, 019, 022, 025, 027, 029 | 80 |
+| [[Fashion Portrait]] | 004, 005, 006, 008, 010, 011, 012, 013, 014, 015, 017, 019, 020, 022, 024, 026, 028 | 80 |
+| [[Image-To-Image]] | 004, 005, 006, 009, 010, 011, 012, 014, 015, 016, 017, 018, 019, 020, 022, 027, 029, 030 | 80 |
+| [[Low Angle Shot]] | 001, 002, 003, 004, 006, 008, 009, 010, 011, 012, 013, 014, 020, 022, 023, 025, 026, 027, 028, 030 | 79 |
+| [[Natural Skin Texture]] | 001, 002, 003, 004, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 020, 021, 022, 023, 024, 025, 026, 027, 028 | 77 |
+| [[Male Portrait]] | 001, 002, 006, 007, 008, 011, 012, 013, 016, 018, 019, 021, 022, 023, 026, 027, 028, 029 | 76 |
+| [[Street Photography]] | 001, 005, 007, 008, 010, 011, 015, 016, 017, 018, 020, 022, 023, 024, 025, 026, 027, 029 | 75 |
+| [[Photorealistic Portrait]] | 001, 002, 003, 004, 006, 008, 009, 010, 012, 015, 016, 017, 020, 022, 023, 025, 026, 028, 029 | 72 |
+| [[Face Preservation]] | 002, 005, 006, 007, 008, 009, 010, 011, 013, 014, 015, 019, 020, 022, 023, 026, 027, 028 | 72 |
+| [[Hyperrealistic Portrait]] | 001, 002, 003, 005, 008, 010, 011, 012, 014, 015, 019, 021, 022, 025, 027, 028, 029 | 70 |
+| [[Soft Natural Light]] | 002, 003, 006, 008, 009, 010, 012, 015, 016, 019, 020, 021, 023, 024, 025, 026, 027 | 70 |
+| [[High Contrast Photography]] | 002, 003, 004, 005, 006, 008, 009, 010, 011, 013, 016, 018, 020, 021, 022, 026, 029, 030 | 69 |
+| [[Golden Hour Light]] | 001, 002, 003, 005, 006, 008, 009, 010, 012, 013, 014, 017, 018, 019, 020, 021, 025, 026 | 68 |
+| [[High Contrast]] | 002, 004, 005, 006, 007, 008, 010, 011, 013, 015, 016, 017, 019, 020, 021, 022, 027, 028, 029, 030 | 68 |
+| [[Chiaroscuro Lighting]] | 001, 002, 005, 006, 007, 009, 010, 011, 013, 014, 015, 017, 019, 021, 024, 025, 026, 027, 029 | 67 |
+| [[85mm Lens]] | 001, 002, 003, 004, 006, 008, 009, 010, 011, 012, 013, 018, 019, 021, 025, 026, 028, 029 | 66 |
+| [[Cyberpunk Aesthetic]] | 002, 005, 007, 008, 010, 011, 018, 021, 025, 026, 029 | 66 |
+| [[Golden Hour]] | 001, 003, 005, 006, 007, 009, 010, 011, 012, 013, 015, 019, 020, 023, 024, 025, 026, 027 | 65 |
+| [[Character Consistency]] | 004, 006, 008, 010, 014, 015, 018, 019, 023, 029 | 63 |
+| [[Image-To-Image Generation]] | 009, 011, 015, 016, 017, 018, 019, 023, 024, 026, 027, 029 | 63 |
+| [[Motion Blur]] | 001, 005, 006, 007, 008, 009, 010, 011, 012, 014, 015, 017, 020, 021, 022, 024, 025, 026, 027, 030 | 62 |
+| [[3D Rendering]] | 001, 005, 006, 007, 009, 013, 016, 019, 024, 028, 029 | 60 |
+| [[Character Design]] | 001, 004, 005, 010, 013, 014, 017, 018, 019, 024, 029 | 60 |
+| [[Prompt Engineering]] | 004, 007, 010, 018, 019, 024 | 60 |
+| [[Social Media Aesthetic]] | 001, 002, 003, 004, 009, 010, 012, 015, 017, 018, 019, 020, 021, 022, 023, 025, 026, 027 | 58 |
+| [[Neon Lighting]] | 002, 003, 006, 007, 009, 010, 011, 013, 015, 016, 021, 022, 023, 025, 026, 029, 030 | 58 |
+| [[Face Consistency]] | 001, 003, 005, 007, 008, 009, 010, 013, 014, 019, 020, 021, 022, 023, 028, 029 | 56 |
+| [[Natural Light Photography]] | 001, 002, 003, 006, 007, 009, 010, 014, 015, 017, 019, 020, 023, 026 | 52 |
+| [[Image Editing]] | 004, 005, 007, 009, 011, 016, 018, 019, 024, 029 | 52 |
+| [[Soft Diffused Light]] | 001, 002, 003, 006, 007, 009, 010, 011, 014, 015, 020, 021, 023, 025, 027, 028 | 50 |
