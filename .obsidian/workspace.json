@@ -11,14 +11,10 @@
             "id": "60af2c40a451ff98",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "prompts_imgae/人像摄影/综合人像.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "综合人像"
+              "title": "新标签页"
             }
           }
         ]
@@ -94,7 +90,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "prompts_imgae/人像摄影/综合人像.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +99,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "综合人像 的反向链接列表"
+              "title": "反向链接"
             }
           },
           {
@@ -113,12 +108,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "prompts_imgae/人像摄影/综合人像.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "综合人像 的出链列表"
+              "title": "出链"
             }
           },
           {
@@ -156,13 +150,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "prompts_imgae/人像摄影/综合人像.md",
+                "file": "prompts_imgae/chunk-007.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "综合人像 的大纲"
+              "title": "chunk-007 的大纲"
             }
           }
         ]
@@ -183,43 +177,43 @@
       "bases:新建数据库": false
     }
   },
-  "active": "60af2c40a451ff98",
+  "active": "7e6e26161d04e92e",
   "lastOpenFiles": [
-    "prompts_imgae/人像摄影/证件照与正式照.md",
-    "prompts_imgae/产品与广告/品牌广告.md",
-    "prompts_imgae/产品与广告/美妆护肤.md",
-    "prompts_imgae/产品与广告/科技产品.md",
     "prompts_video/00-Index.md",
-    "prompts_video/_其他.md",
-    "prompts_video/其他/未分类.md",
-    "prompts_video/其他",
-    "prompts_video/_特效与实验.md",
-    "prompts_video/特效与实验/风格实验.md",
-    "prompts_video/特效与实验/转场效果.md",
-    "prompts_video/特效与实验/综合特效.md",
-    "prompts_video/特效与实验/VFX特效.md",
-    "prompts_video/特效与实验",
-    "prompts_video/_时尚与生活.md",
-    "prompts_video/时尚与生活/运动健身.md",
-    "prompts_video/时尚与生活/时装展示.md",
-    "prompts_video/时尚与生活/日常生活.md",
-    "prompts_video/时尚与生活",
-    "prompts_video/_萌宠与可爱.md",
-    "prompts_video/萌宠与可爱/综合萌宠.md",
-    "prompts_video/萌宠与可爱/猫咪.md",
-    "prompts_video/萌宠与可爱/狗狗.md",
-    "prompts_video/萌宠与可爱/其他动物.md",
-    "prompts_video/萌宠与可爱",
-    "prompts_video/_人物与肖像.md",
-    "prompts_video/人物与肖像/综合人物.md",
-    "prompts_video/人物与肖像/电影肖像.md",
-    "prompts_video/人物与肖像/Vlog风格.md",
-    "prompts_video/人物与肖像/情侣与浪漫.md",
-    "prompts_video/人物与肖像",
-    "prompts_video/自然与风景",
-    "prompts_video/恐怖与悬疑",
-    "prompts_video/科幻与奇幻",
-    "prompts_video/广告与商业",
-    "prompts_video/动漫与动画"
+    "prompts_video/chunk-009.md",
+    "prompts_video/chunk-008.md",
+    "prompts_video/chunk-007.md",
+    "prompts_video/chunk-006.md",
+    "prompts_video/chunk-005.md",
+    "prompts_video/chunk-004.md",
+    "prompts_video/chunk-003.md",
+    "prompts_video/chunk-002.md",
+    "prompts_video/chunk-001.md",
+    "prompts_video",
+    "prompts_imgae/00-Index.md",
+    "prompts_imgae/chunk-063.md",
+    "prompts_imgae/chunk-062.md",
+    "prompts_imgae/chunk-061.md",
+    "prompts_imgae/chunk-060.md",
+    "prompts_imgae/chunk-059.md",
+    "prompts_imgae/chunk-058.md",
+    "prompts_imgae/chunk-057.md",
+    "prompts_imgae/chunk-056.md",
+    "prompts_imgae/chunk-055.md",
+    "prompts_imgae/chunk-054.md",
+    "prompts_imgae/chunk-053.md",
+    "prompts_imgae/chunk-052.md",
+    "prompts_imgae/chunk-051.md",
+    "prompts_imgae/chunk-050.md",
+    "prompts_imgae/chunk-049.md",
+    "prompts_imgae",
+    "scripts/generate-vault.py",
+    "tmp/normalized_video.json",
+    "tmp/normalized_image.json",
+    "tmp/merge_map_image.json",
+    "tmp/merge_map_video.json",
+    "tmp/link_vocab_video.json",
+    "tmp/link_vocab_image.json",
+    "scripts/normalize-links.py"
   ]
 }
