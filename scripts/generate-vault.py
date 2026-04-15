@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """
-Generate a flat Markdown Obsidian vault from normalized tag data + raw prompts.
+Generate chunk-based Obsidian vault optimized for LLM retrieval.
+
+Reads normalized tag data + raw prompts, produces:
+- chunk-{NNN}.md files (~200 prompts each, semantically sorted)
+- 00-Index.md (topic inverted index, ~70 rows)
 
 Usage:
-    python3 scripts/generate-vault.py image [--min-group=5]
-    python3 scripts/generate-vault.py video [--min-group=5]
+    python3 scripts/generate-vault.py image
+    python3 scripts/generate-vault.py video
 """
 
 import argparse
@@ -27,38 +31,81 @@ PIPELINE_CONFIG = {
     "image": {
         "raw_json": "40_Reference/Articles/20260414/youmind-nano-banana-pro-all-prompts.json",
         "normalized_json": "tmp/normalized_image.json",
-        "output_dir": "prompts_imgae",  # intentionally misspelled
+        "output_dir": "prompts_imgae",  # intentional misspelling, do not change
         "vault_title": "Nano Banana Pro Prompts",
+        "chunk_size": 200,
+        "anchor_min_freq": 50,
+        "search_link_min_freq": 5,
+        "search_link_max": 4,
     },
     "video": {
         "raw_json": "40_Reference/Articles/20260414/youmind-seedance-2.0-all-prompts.json",
         "normalized_json": "tmp/normalized_video.json",
         "output_dir": "prompts_video",
         "vault_title": "Seedance 2.0 Video Prompts",
+        "chunk_size": 200,
+        "anchor_min_freq": 10,  # video has lower link freq; top link is 29
+        "search_link_min_freq": 3,
+        "search_link_max": 4,
     },
 }
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Helpers
+# Link analysis
 # ──────────────────────────────────────────────────────────────────────────────
 
-def strip_link_brackets(s: str) -> str:
-    """Remove [[ and ]] wrappers if present."""
-    s = s.strip()
-    if s.startswith("[[") and s.endswith("]]"):
-        return s[2:-2].strip()
-    return s
+def build_link_freq(tagged_data: list[dict]) -> Counter:
+    """Count global frequency of every link across all prompts."""
+    freq = Counter()
+    for item in tagged_data:
+        for link in item.get("links", []):
+            freq[link] += 1
+    return freq
 
 
-def to_kebab_case(s: str) -> str:
-    """Convert a topic name to a kebab-case filename stem."""
-    s = s.lower()
-    s = re.sub(r"[^a-z0-9\s\-]", "", s)
-    s = re.sub(r"[\s]+", "-", s.strip())
-    s = re.sub(r"-+", "-", s)
-    return s
+def select_search_links(
+    links: list[str],
+    freq_table: Counter,
+    min_freq: int,
+    max_links: int,
+) -> list[str]:
+    """Select search_links for one prompt.
 
+    Rules:
+    1. Keep only links with global freq >= min_freq
+    2. Sort by frequency descending
+    3. Truncate to max_links
+    4. Fallback: if empty, keep 1 link with highest frequency from original set
+    """
+    candidates = [(lk, freq_table.get(lk, 0)) for lk in links if freq_table.get(lk, 0) >= min_freq]
+    candidates.sort(key=lambda x: -x[1])
+    result = [lk for lk, _ in candidates[:max_links]]
+
+    if not result and links:
+        best = max(links, key=lambda lk: freq_table.get(lk, 0))
+        result = [best]
+
+    return result
+
+
+def assign_anchor(search_links: list[str], anchor_set: set[str], freq_table: Counter) -> str:
+    """Pick the best anchor for a prompt from its search_links.
+
+    Returns the highest-frequency link that is in the anchor set, or "" if none.
+    """
+    best = ""
+    best_freq = -1
+    for lk in search_links:
+        if lk in anchor_set and freq_table.get(lk, 0) > best_freq:
+            best = lk
+            best_freq = freq_table[lk]
+    return best
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Markdown rendering
+# ──────────────────────────────────────────────────────────────────────────────
 
 def format_date(iso_str: str) -> str:
     """Format ISO date string to YYYY-MM-DD."""
@@ -73,9 +120,9 @@ def format_date(iso_str: str) -> str:
 
 def get_author_name(author) -> str:
     if not author:
-        return "Unknown"
+        return ""
     if isinstance(author, dict):
-        return author.get("name", "Unknown")
+        return author.get("name", "")
     return str(author)
 
 
@@ -87,156 +134,118 @@ def get_author_link(author) -> str:
     return ""
 
 
-def get_media_urls(prompt: dict) -> list:
-    """Extract media URLs from image prompt (handles str or dict items)."""
-    media = prompt.get("media") or []
-    urls = []
-    for item in media:
-        if isinstance(item, str):
-            urls.append(item)
-        elif isinstance(item, dict):
-            url = item.get("url") or item.get("src") or ""
-            if url:
-                urls.append(url)
-    return urls
-
-
-def get_video_items(prompt: dict) -> list:
-    """Extract video items from video prompt."""
-    videos = prompt.get("videos") or []
-    result = []
-    for v in videos:
-        if isinstance(v, dict):
-            watch_url = v.get("watchUrl") or v.get("sourceUrl") or ""
-            thumb_url = v.get("thumbnailUrl") or v.get("thumbnail") or ""
-            if watch_url or thumb_url:
-                result.append({"watchUrl": watch_url, "thumbnailUrl": thumb_url})
-    return result
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Markdown generation
-# ──────────────────────────────────────────────────────────────────────────────
-
-def render_prompt_block(idx: int, prompt: dict, pipeline: str) -> str:
-    """Render a single prompt entry within a topic file."""
-    title = prompt.get("title") or "(Untitled)"
-    description = prompt.get("description") or ""
-    content = prompt.get("content") or ""
-    source_link = prompt.get("sourceLink") or ""
-    date = format_date(prompt.get("sourcePublishedAt") or "")
-    language = prompt.get("language") or ""
-    author = prompt.get("author")
-    author_name = get_author_name(author)
-    author_link = get_author_link(author)
-
+def render_prompt_entry(idx: int, prompt: dict, search_links: list[str], pipeline: str) -> str:
+    """Render one prompt as a Markdown entry."""
     lines = []
+    title = prompt.get("title") or "(Untitled)"
     lines.append(f"### {idx}. {title}")
     lines.append("")
 
     # Meta line
     meta_parts = []
+    author = prompt.get("author")
+    author_name = get_author_name(author)
+    author_link = get_author_link(author)
     if author_name and author_link:
         meta_parts.append(f"**Author**: [{author_name}]({author_link})")
     elif author_name:
         meta_parts.append(f"**Author**: {author_name}")
+
+    date = format_date(prompt.get("sourcePublishedAt") or "")
     if date:
         meta_parts.append(f"**Date**: {date}")
+
+    language = prompt.get("language") or ""
     if language:
         meta_parts.append(f"**Language**: {language}")
+
     if meta_parts:
         lines.append("  ".join(meta_parts))
         lines.append("")
 
-    # Description blockquote
+    # Description
+    description = prompt.get("description") or ""
     if description:
-        lines.append(f"> {description}")
+        for desc_line in description.strip().splitlines():
+            lines.append(f"> {desc_line}")
         lines.append("")
 
+    # Media (image pipeline)
     if pipeline == "image":
-        media_urls = get_media_urls(prompt)
-        for url in media_urls:
-            lines.append(f"![{title}]({url})")
-        if media_urls:
+        media = prompt.get("media") or []
+        for item in media:
+            url = item if isinstance(item, str) else (item.get("url") or item.get("src") or "")
+            if url:
+                lines.append(f"![{title}]({url})")
+        if media:
             lines.append("")
     else:
-        video_items = get_video_items(prompt)
-        for v in video_items:
-            if v["watchUrl"]:
-                lines.append(f"**Video**: [Watch]({v['watchUrl']})")
-            if v["thumbnailUrl"]:
-                lines.append(f"![Thumbnail]({v['thumbnailUrl']})")
-        if video_items:
+        # Video pipeline
+        videos = prompt.get("videos") or []
+        for v in videos:
+            if isinstance(v, dict):
+                watch_url = v.get("watchUrl") or v.get("sourceUrl") or ""
+                thumb_url = v.get("thumbnailUrl") or v.get("thumbnail") or ""
+                if watch_url:
+                    lines.append(f"**Video**: [Watch]({watch_url})")
+                if thumb_url:
+                    lines.append(f"![Thumbnail]({thumb_url})")
+        if videos:
             lines.append("")
 
-    # Content fenced code block
+    # Prompt content
+    content = prompt.get("content") or ""
     if content:
         lines.append("```")
-        lines.append(content)
+        lines.append(content.strip())
         lines.append("```")
         lines.append("")
 
-    return "\n".join(lines)
-
-
-def render_topic_file(topic_name: str, prompts: list, tag_records: list, pipeline: str) -> str:
-    """Render a complete topic Markdown file."""
-    lines = []
-    lines.append(f"# {topic_name}")
-    lines.append("")
-    lines.append(f"Total: {len(prompts)} prompts")
-    lines.append("")
-
-    for idx, (prompt, tag_record) in enumerate(zip(prompts, tag_records), start=1):
-        lines.append(render_prompt_block(idx, prompt, pipeline))
-
-        # Bidirectional links (from tag record)
-        raw_links = tag_record.get("links") or []
-        clean_links = [strip_link_brackets(lk) for lk in raw_links]
-        # Remove duplicates while preserving order; exclude empty
-        seen = set()
-        deduped = []
-        for lk in clean_links:
-            if lk and lk not in seen:
-                seen.add(lk)
-                deduped.append(lk)
-        if deduped:
-            link_str = " ".join(f"[[{lk}]]" for lk in deduped)
-            lines.append(link_str)
-            lines.append("")
-
-        lines.append("---")
+    # search_links
+    if search_links:
+        lines.append(" ".join(f"[[{lk}]]" for lk in search_links))
         lines.append("")
 
+    lines.append("---")
+    lines.append("")
     return "\n".join(lines)
 
 
-def render_index(vault_title: str, groups: dict, group_links: dict) -> str:
-    """Render 00-Index.md."""
-    total_prompts = sum(len(v) for v in groups.values())
-    total_topics = len(groups)
+def render_chunk_file(chunk_num: int, entries: list[dict], pipeline: str) -> str:
+    """Render a complete chunk Markdown file.
 
+    Each entry in `entries` is: {"prompt": raw_prompt, "search_links": [...]}
+    """
+    lines = []
+    lines.append(f"# Chunk {chunk_num:03d}")
+    lines.append("")
+    lines.append(f"Total: {len(entries)} prompts")
+    lines.append("")
+
+    for idx, entry in enumerate(entries, start=1):
+        lines.append(render_prompt_entry(idx, entry["prompt"], entry["search_links"], pipeline))
+
+    return "\n".join(lines)
+
+
+def render_index(vault_title: str, total_prompts: int, total_chunks: int, topic_index: list[dict]) -> str:
+    """Render 00-Index.md.
+
+    topic_index: [{"topic": str, "chunks": [int], "count": int}, ...]
+    """
     lines = []
     lines.append(f"# {vault_title}")
     lines.append("")
-    lines.append(f"Total: {total_prompts} prompts, {total_topics} topic pages")
+    lines.append(f"Total: {total_prompts} prompts, {total_chunks} chunk files")
     lines.append("")
     lines.append("## Index")
     lines.append("")
-    lines.append("| Topic | Count | Related Links |")
-    lines.append("|-------|-------|---------------|")
+    lines.append("| Topic | Chunks | Count |")
+    lines.append("|-------|--------|-------|")
 
-    # Sort by count descending
-    for topic, prompts in sorted(groups.items(), key=lambda x: -len(x[1])):
-        count = len(prompts)
-        # Top 5 related links (excluding topic name itself)
-        link_counter = group_links.get(topic, Counter())
-        top_links = [
-            lk for lk, _ in link_counter.most_common(10)
-            if lk.lower() != topic.lower()
-        ][:5]
-        related = ", ".join(f"[[{lk}]]" for lk in top_links)
-        lines.append(f"| [[{topic}]] | {count} | {related} |")
+    for entry in topic_index:
+        chunk_strs = ", ".join(f"{c:03d}" for c in entry["chunks"])
+        lines.append(f"| [[{entry['topic']}]] | {chunk_strs} | {entry['count']} |")
 
     lines.append("")
     return "\n".join(lines)
@@ -246,115 +255,132 @@ def render_index(vault_title: str, groups: dict, group_links: dict) -> str:
 # Main pipeline
 # ──────────────────────────────────────────────────────────────────────────────
 
-def run_pipeline(pipeline: str, min_group: int):
+def run_pipeline(pipeline: str):
     cfg = PIPELINE_CONFIG[pipeline]
 
     raw_path = os.path.join(BASE_DIR, cfg["raw_json"])
     norm_path = os.path.join(BASE_DIR, cfg["normalized_json"])
     out_dir = os.path.join(BASE_DIR, cfg["output_dir"])
-    vault_title = cfg["vault_title"]
 
+    chunk_size = cfg["chunk_size"]
+    anchor_min_freq = cfg["anchor_min_freq"]
+    search_link_min_freq = cfg["search_link_min_freq"]
+    search_link_max = cfg["search_link_max"]
+
+    # Load data
     print(f"[{pipeline}] Loading raw prompts from {raw_path} ...")
     with open(raw_path, encoding="utf-8") as f:
         raw_data = json.load(f)
-    raw_prompts_list = raw_data.get("prompts", [])
-    raw_by_id = {p["id"]: p for p in raw_prompts_list}
+    raw_by_id = {p["id"]: p for p in raw_data["prompts"]}
     print(f"[{pipeline}] Loaded {len(raw_by_id)} raw prompts")
 
     print(f"[{pipeline}] Loading normalized tags from {norm_path} ...")
     with open(norm_path, encoding="utf-8") as f:
-        norm_data = json.load(f)
-    print(f"[{pipeline}] Loaded {len(norm_data)} tag records")
+        tagged = json.load(f)
+    print(f"[{pipeline}] Loaded {len(tagged)} tag records")
 
-    # Build groups: primary → list of (prompt, tag_record)
-    groups_raw: dict[str, list] = defaultdict(list)
+    # Step 1: Build link frequency
+    freq_table = build_link_freq(tagged)
+    print(f"[{pipeline}] Unique links: {len(freq_table)}")
+    print(f"[{pipeline}] Links freq >= {search_link_min_freq}: {sum(1 for c in freq_table.values() if c >= search_link_min_freq)}")
+    print(f"[{pipeline}] Links freq >= {anchor_min_freq}: {sum(1 for c in freq_table.values() if c >= anchor_min_freq)}")
+
+    # Step 2: Build anchor set
+    anchor_set = {lk for lk, c in freq_table.items() if c >= anchor_min_freq}
+    print(f"[{pipeline}] Anchor topics: {len(anchor_set)}")
+
+    # Step 3: For each prompt, compute search_links and anchor
+    entries = []
     missing_ids = 0
-    for record in norm_data:
-        pid = record.get("id")
-        primary = strip_link_brackets(record.get("primary") or "Miscellaneous")
+    for record in tagged:
+        pid = record["id"]
         prompt = raw_by_id.get(pid)
         if prompt is None:
             missing_ids += 1
             continue
-        groups_raw[primary].append((prompt, record))
+
+        s_links = select_search_links(record.get("links", []), freq_table, search_link_min_freq, search_link_max)
+        anchor = assign_anchor(s_links, anchor_set, freq_table)
+
+        entries.append({
+            "prompt": prompt,
+            "search_links": s_links,
+            "anchor": anchor,
+        })
 
     if missing_ids:
         print(f"[{pipeline}] Warning: {missing_ids} tag records had no matching raw prompt")
 
-    # Merge small groups into Miscellaneous
-    final_groups: dict[str, list] = {}
-    misc_items = []
-    misc_tag_records = []
+    # Step 4: Sort — anchored first (by anchor name), then unanchored
+    anchored = [e for e in entries if e["anchor"]]
+    unanchored = [e for e in entries if not e["anchor"]]
+    anchored.sort(key=lambda e: e["anchor"])
+    sorted_entries = anchored + unanchored
 
-    for topic, items in groups_raw.items():
-        if len(items) < min_group and topic != "Miscellaneous":
-            misc_items.extend(items)
-        else:
-            final_groups[topic] = items
+    anchored_count = len(anchored)
+    print(f"[{pipeline}] Anchored: {anchored_count} ({anchored_count/len(sorted_entries)*100:.1f}%)")
+    print(f"[{pipeline}] Unanchored: {len(unanchored)} ({len(unanchored)/len(sorted_entries)*100:.1f}%)")
 
-    if misc_items:
-        existing_misc = final_groups.get("Miscellaneous", [])
-        final_groups["Miscellaneous"] = existing_misc + misc_items
+    # Step 5: Slice into chunks
+    chunks = []
+    for i in range(0, len(sorted_entries), chunk_size):
+        chunks.append(sorted_entries[i:i + chunk_size])
 
-    # Print distribution report
-    print(f"\n[{pipeline}] Distribution report (top 20, min_group={min_group}):")
-    sorted_groups = sorted(final_groups.items(), key=lambda x: -len(x[1]))
-    for topic, items in sorted_groups[:20]:
-        print(f"  {len(items):5d}  {topic}")
-    if len(sorted_groups) > 20:
-        print(f"  ... and {len(sorted_groups) - 20} more topics")
-    print(f"  Total topics: {len(final_groups)}")
-    print(f"  Total prompts: {sum(len(v) for v in final_groups.values())}")
+    print(f"[{pipeline}] Chunks: {len(chunks)} (chunk_size={chunk_size})")
 
-    # Build group link counters for index
-    group_links: dict[str, Counter] = {}
-    for topic, items in final_groups.items():
-        ctr = Counter()
-        for _, record in items:
-            for lk in record.get("links") or []:
-                clean = strip_link_brackets(lk)
-                if clean:
-                    ctr[clean] += 1
-        group_links[topic] = ctr
-
-    # Clean output directory
+    # Step 6: Clean output directory and write chunks
     if os.path.exists(out_dir):
-        print(f"\n[{pipeline}] Cleaning output directory {out_dir} ...")
         shutil.rmtree(out_dir)
-    os.makedirs(out_dir, exist_ok=True)
+    os.makedirs(out_dir)
 
-    # Write topic files
-    print(f"[{pipeline}] Writing {len(final_groups)} topic files ...")
-    for topic, items in final_groups.items():
-        prompts = [p for p, _ in items]
-        records = [r for _, r in items]
-        content = render_topic_file(topic, prompts, records, pipeline)
-        filename = to_kebab_case(topic) + ".md"
-        filepath = os.path.join(out_dir, filename)
+    for chunk_idx, chunk_entries in enumerate(chunks, start=1):
+        content = render_chunk_file(chunk_idx, chunk_entries, pipeline)
+        filepath = os.path.join(out_dir, f"chunk-{chunk_idx:03d}.md")
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(content)
 
-    # Write index
-    # Convert final_groups to {topic: prompts_list} for index renderer
-    groups_for_index = {topic: [p for p, _ in items] for topic, items in final_groups.items()}
-    index_content = render_index(vault_title, groups_for_index, group_links)
-    index_path = os.path.join(out_dir, "00-Index.md")
-    with open(index_path, "w", encoding="utf-8") as f:
+    # Step 7: Build inverted index
+    topic_chunk_map: dict[str, Counter] = defaultdict(Counter)
+    for chunk_idx, chunk_entries in enumerate(chunks, start=1):
+        for entry in chunk_entries:
+            for lk in entry["search_links"]:
+                if lk in anchor_set:
+                    topic_chunk_map[lk][chunk_idx] += 1
+
+    topic_index = []
+    for topic in sorted(topic_chunk_map.keys(), key=lambda t: -sum(topic_chunk_map[t].values())):
+        chunk_counts = topic_chunk_map[topic]
+        total_count = sum(chunk_counts.values())
+        chunk_nums = sorted(chunk_counts.keys())
+        topic_index.append({
+            "topic": topic,
+            "chunks": chunk_nums,
+            "count": total_count,
+        })
+
+    # Write 00-Index.md
+    index_content = render_index(
+        cfg["vault_title"],
+        len(sorted_entries),
+        len(chunks),
+        topic_index,
+    )
+    with open(os.path.join(out_dir, "00-Index.md"), "w", encoding="utf-8") as f:
         f.write(index_content)
 
-    # Verify
-    written = [f for f in os.listdir(out_dir) if f.endswith(".md")]
-    print(f"[{pipeline}] Done. {len(written)} .md files written to {out_dir}/")
-    print(f"[{pipeline}]   (including 00-Index.md)")
+    # Summary
+    print(f"\n[{pipeline}] Done:")
+    print(f"  {len(chunks)} chunk files + 00-Index.md written to {out_dir}/")
+    print(f"  Index topics: {len(topic_index)}")
+    print(f"  Total prompts: {len(sorted_entries)}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Obsidian vault from normalized prompts")
+    parser = argparse.ArgumentParser(description="Generate chunk-based Obsidian vault for LLM retrieval")
     parser.add_argument("pipeline", choices=["image", "video"], help="Pipeline to run")
-    parser.add_argument("--min-group", type=int, default=5, help="Min prompts per group (default: 5)")
     args = parser.parse_args()
 
-    run_pipeline(args.pipeline, args.min_group)
+    run_pipeline(args.pipeline)
 
 
 if __name__ == "__main__":
